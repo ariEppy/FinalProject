@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input type="text" placeholder="teachers name" id="fullname" />
+    <input type="number" placeholder="tz" id="tz" />
+    <input type="number" placeholder="salary" id="sal" />
+    <input type="text" placeholder="subject" id="sub" />
+    <button onclick="submit()">submit</button>
+    <br />
+    <input type="number" placeholder="amount" id="amount" />
+    <button onclick="below()">Lower than</button>
+
+    <div id="teachers"></div>
+    <script>
+      let teachersDiv = document.getElementById("teachers");
+      let teachers = [];
+
+      async function below() {
+        let amount = document.getElementById("amount").value;
+        const res = await fetch("/api/lower", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount }),
+        });
+        const data = await res.text();
+        console.log(data);
+      }
+
+      window.addEventListener("DOMContentLoaded", loadTeachers);
+
+      async function loadTeachers() {
+        const res = await fetch("/api/teachers");
+        const data = await res.json();
+        teachers = data;
+        showTeachers(teachers);
+      }
+      function showTeachers(array) {
+        teachersDiv.innerHTML = "";
+        array.forEach((element) => {
+          let teacherDiv = document.createElement("div");
+          teacherDiv.textContent = `${element.fullname} - ${element.subject}`;
+          teachersDiv.append(teacherDiv);
+        });
+      }
+
+      async function submit() {
+        const fullname = document.getElementById("fullname").value;
+        const tz = document.getElementById("tz").value;
+        const salary = document.getElementById("sal").value;
+        const subject = document.getElementById("sub").value;
+
+        const res = await fetch("http://localhost:4000/api/addTeacher", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fullname, tz, salary, subject }),
+        });
+
+        const data = await res.text();
+        if (data === "ok") {
+          alert("added");
+          loadTeachers();
+        } else alert(data);
+      }
+    </script>
+  </body>
+</html>
